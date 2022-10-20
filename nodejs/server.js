@@ -25,23 +25,26 @@ mongoClient.connect(url, (err, db) => {
         email: req.body.email,
         password: req.body.password,
       }
-
-      console.log(`I would like to see newUser obj`)
       console.log(newUser)
 
       const query = { email: newUser.email }
-      collection.findOne(query, (err, result) {
+      collection.findOne(query, (err, result) => {
+        console.log('Result')
+        console.log(result)
 
         if (result == null) {
           console.log('You can insert this record')
+          // collection.insertOne()
           collection.insertOne(newUser, (err, result) => {
             res.status(200).send()
           })
+
+          res.send(200).send(JSON.stringify())
         }
         else {
+          console.log('We have result')
           res.status(400).send()
         }
-
 
       })
     })
@@ -50,7 +53,27 @@ mongoClient.connect(url, (err, db) => {
 
       const query = {
         email: req.body.email,
+        password: req.body.password
       }
+
+      collection.findOne(query, (err, result) => {
+        if (result != null) {
+          console.log('Can send the object for the app')
+          const objToSend = {
+            name: result.name,
+            email: result.email,
+          }
+
+          console.log(`objectToSend`)
+          console.log(objToSend)
+
+          res.status(200).send(objToSend)
+        } else {
+          console.log(`Result: ${result}`)
+          res.status(400).send()
+        }
+
+      })
 
     })
 

@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
     private Retrofit retrofit;
     private RetrofitInterface retrofitInterface;
     // This variable depends on the current ipv4 of the computer
-    private String BASE_URL = "http://192.168.1.3:3001";
+    private String BASE_URL = "http://10.20.1.21:3001";
 
     // UI components
     Button loginButton;
@@ -70,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
         EditText passwordEditView = view.findViewById(R.id.password_edit);
 
         loginButton.setOnClickListener((View v) -> {
-
             HashMap<String, String> map = new HashMap<>();
 
             map.put("email", emailEditView .getText().toString());
@@ -80,11 +79,22 @@ public class MainActivity extends AppCompatActivity {
             Call<LoginResult> call = retrofitInterface.executeLogin(map);
 
             // Execute http request
-            call.enqueue(new Callback<LoginResult>() {
+           call.enqueue(new Callback<LoginResult>() {
 
                 @Override
                 public void onResponse(Call<LoginResult> call, Response<LoginResult> response) {
+                    if (response.code() == 200) {
+                        LoginResult result = response.body();
 
+                        AlertDialog.Builder builder1 = new AlertDialog.Builder(MainActivity.this);
+                        builder1.setTitle(result.getName());
+                        builder1.setMessage(result.getEmail());
+
+                        builder1.show();
+                    } else if (response.code() == 400) {
+                        Toast.makeText(MainActivity.this, "Wrong Credentials",
+                                Toast.LENGTH_LONG).show();
+                    }
                 }
 
                 @Override
@@ -99,7 +109,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void handleSignupDialog() {
-
         View view = getLayoutInflater().inflate(R.layout.signup_dialog, null);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -126,7 +135,17 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onResponse(Call<Void> call, Response<Void> response) {
+                    if(response.code() == 200) {
+                        Toast.makeText(MainActivity.this, "Signed up successfully", Toast.LENGTH_LONG).show();
 
+                        // Make the text fields empty
+                        nameEditText.setText("");
+                        emailEditView.setText("");
+                        passwordEditView.setText("");
+
+                    } else if (response.code() == 400) {
+                        Toast.makeText(MainActivity.this, "Already registered", Toast.LENGTH_LONG).show();
+                    }
                 }
 
                 @Override
